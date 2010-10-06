@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load html form_utils %}
+
+{% block js %}
+	{% html_media 'js/ajax_form_validate.js' %}
+	{% html_media 'js/accounts_register.js' %}
+{% endblock %}
+
+{% block inner_page %}
+	{% build_form form %}
+
+{% endblock %}

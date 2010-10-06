@@ -1,0 +1,53 @@
+#exemplo de uso do CreateObjectView e UpdateObjectView
+
+#DJANGO
+from views import CreateObjectView
+#PROJECT
+from myproject.myapp.models import MyModel
+from myproject.myapp.forms import MyModelForm
+
+class ModelCreateView(CreateObjectView):
+    form_class = MyModelForm
+           
+    def __call__(self, request, slug):
+        self.some_field = get_object_or_404(Event, some_field=slug)
+        self.template_name = 'events/%s/subscription_form.html' % slug
+        
+        return super(ModelCreateView, self).__call__(request)       
+                
+    def save_instance(self, obj):
+        obj.some_field = self.some_field
+        super(SubCreateView, self).save_instance(obj)
+        
+myview = ModelCreateView()        
+
+
+
+
+class MyUpdateObject(UpdateObjectView):
+    form_class = MainForm
+    
+    def __call__(self, request, o_id):
+        self.object_id = o_id
+        return super(MyUpdateObject, self).__call__(request)
+  
+    
+update_object = MyUpdateObject()
+
+
+
+class MainForm(forms.ModelForm):
+    
+    def __init__(self, *args, **kwargs):        
+        super(MainForm, self).__init__(*args, **kwargs)
+        
+        try:        
+            image_link = {'image': kwargs['instance'].image}
+        except KeyError:
+            image_link = {} 
+                  
+        self.options = FormOptions(base_error_msg='Please, Fix the bellow shit', enctype="multipart/form-data",
+                          images_links=image_link)
+    
+    class Meta:
+        model = MainModel

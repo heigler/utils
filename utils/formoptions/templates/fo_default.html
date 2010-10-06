@@ -1,0 +1,64 @@
+{% load i18n %}
+{% if form.options %}
+<div class="base_form">
+	
+	{% with form.options as opt %}
+	<form method="{{ opt.method }}" action="{{ opt.action }}" 
+									{% if opt.enctype %}enctype="{{ opt.enctype }}"{% endif %}
+									{% if opt.css_class %}class="{{ opt.css_class }}"{% endif %}
+									{% if opt.id %}id="{{ opt.id }}"{% endif %}>
+	{% endwith %}
+	
+	{% if form.errors %} 	
+	<div class="error_list">
+        <p>{{ form.options.base_error_msg|safe }}</p>
+        <ul>
+        {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+        {% endfor %}
+        {% for field in form %}
+                {% for error in field.errors %}
+                        <li>
+                                <strong>{{ field.label }}</strong>: {{ error }}
+                        </li>
+                {% endfor %}
+        {% endfor %}
+        </ul>
+	</div>
+	{% endif %}	
+	
+	
+	{% for field in form %}
+		
+		<p{% for k,i in form.options.css_p_map.items %}
+			{% ifequal field.name k %}class="{{ i }}"{% endifequal %}
+		  {% endfor %}>
+		  
+		  <label for="{{ field.auto_id }}" {% if field.errors %}class="error"{% endif %}>
+				<span>{{ field.label }}</span>
+				
+				{{ field }}			
+				
+				{% for k,i in form.options.images_links.items %}
+					{% ifequal field.name k %}
+						<a title="{{ field.label }}" class="image_link" rel="shadowbox" href="/media/{{ i }}">{% trans 'Checks current image' %}</a>
+					{% endifequal %}
+				{% endfor %}
+				
+				{% if form.options.include_help_text %}
+					<small>{{ field.help_text }}</small>
+				{% endif %}
+		  </label>
+			
+		</p>
+		
+	{% endfor %}
+	
+		<p class="button">
+			<input type="submit" name="submit" value="{{ form.options.submit_label }}" />
+		</p>		
+		
+	</form>
+	
+</div>
+{% endif %}
