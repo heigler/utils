@@ -215,6 +215,18 @@ class AutoImageField(models.ImageField):
             [os.remove(os.path.join(basedir, f)) for f in glob.glob(mask)]
 
 
+
+rules = [
+  (
+    (AutoImageField, AutoFileField),
+    [],
+    {},
+  )
+]
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules(rules, ["^utils"])
+
+
 BR_DATE_INPUT_FORMATS = (
     '%d/%m/%y', # 15/02/80
     '%d/%m/%Y', # 15/02/1980
