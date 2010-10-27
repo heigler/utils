@@ -26,13 +26,13 @@ class CreateRegister(CreateObjectView):
         return super(CreateRegister, self).__call__(request)
     
  
-    def save_instance(self, obj):        
+    def save_instance(self, obj):
         obj.is_active = False
         obj.set_password(self.form.cleaned_data['password'])
         super(CreateRegister, self).save_instance(obj)        
         
         tkt = Tkt.objects.get(user=obj)
-        referer = request.GET.get('ref', None)
+        referer = self.request.GET.get('ref', None)
         if referer:
             try:
                 tkt.referer = int(referer)
@@ -52,6 +52,19 @@ class CreateRegister(CreateObjectView):
                        subject = _('Account activation')
                        )
 
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        
+        if form.is_valid():
+            #register the user
+            pass
+ 
+    else:
+        pass
+    
+    
 
 register = CreateRegister()
 
