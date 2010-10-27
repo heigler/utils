@@ -11,15 +11,17 @@ passwd_base_error = _('Passwords doesn\'t match')
 
 
 class RegisterForm(forms.ModelForm):
-    first_name = forms.CharField(label=_('First name'), max_length=30)
-    last_name = forms.CharField(label=_('Last name'), max_length=30)
+    first_name = forms.CharField(label='Primeiro nome', max_length=30)
+    last_name = forms.CharField(label=u'Último nome', max_length=30)
     
     email = forms.EmailField()
     
-    password = forms.CharField(label=_('Password'), widget=forms.PasswordInput)
-    confirm_password = forms.CharField(label=_('Confirm password'), widget=forms.PasswordInput)
+    password = forms.CharField(label=u'Senha', widget=forms.PasswordInput)
+    confirm_password = forms.CharField(label=u'Confirme sua senha', widget=forms.PasswordInput)
+    read_terms = forms.BooleanField(label=u'Declaro que li, entendi e aceito os termos de uso')
     
-    options = FormOptions(submit_label=_('Submit'), include_help_text=False)
+    
+    options = FormOptions(submit_label=u'Enviar', include_help_text=False, css_p_map={'read_terms': 'terms'})
     
     class Meta:
         model = User
