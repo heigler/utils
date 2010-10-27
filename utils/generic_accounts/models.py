@@ -19,7 +19,8 @@ class CommonTkt(models.Model):
         return self.user.username    
 
 
-class Tkt(CommonTkt):    
+class Tkt(CommonTkt):
+    referer = models.IntegerField(null=True, blank=True)
     
     def get_absolute_url(self, request):
         return 'http://%s%s' %(request.META['HTTP_HOST'], reverse('account_confirm', args=[self.key]))

@@ -22,6 +22,7 @@ class CreateRegister(CreateObjectView):
     def __call__(self, request):  
         
         self.post_save_redirect = reverse('account_register_ok')
+        self.request = request
         return super(CreateRegister, self).__call__(request)
     
  
@@ -31,6 +32,14 @@ class CreateRegister(CreateObjectView):
         super(CreateRegister, self).save_instance(obj)        
         
         tkt = Tkt.objects.get(user=obj)
+        referer = request.GET.get('ref', None)
+        if referer:
+            try:
+                tkt.referer = int(referer)
+                tkt.save()
+            except ValueError:
+                pass
+            
         
         #Sends the email here
         email_context = {'username': obj.username,
