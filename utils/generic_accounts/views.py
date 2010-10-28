@@ -3,7 +3,7 @@
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import simple, create_update
 from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
@@ -15,60 +15,46 @@ from utils.generic_accounts.helpers import gen_random_code
 from utils.mail import send_html_mail
 
 
-class CreateRegister(CreateObjectView):
-    form_class = RegisterForm
-    template_name = 'accounts/register.html'
-    
-    def __call__(self, request):  
-        
-        self.post_save_redirect = reverse('account_register_ok')
-        self.request = request
-        return super(CreateRegister, self).__call__(request)
-    
- 
-    def save_instance(self, obj):
-        obj.is_active = False
-        obj.set_password(self.form.cleaned_data['password'])
-        super(CreateRegister, self).save_instance(obj)        
-        
-        tkt = Tkt.objects.get(user=obj)
-        referer = self.request.GET.get('ref', None)
-        if referer:
-            try:
-                tkt.referer = int(referer)
-                tkt.save()
-            except ValueError:
-                pass
-            
-        
-        #Sends the email here
-        email_context = {'username': obj.username,
-                         'password': self.form.cleaned_data.get('password',''),
-                         'activation_link': tkt.get_absolute_url(self.request)}
-        
-        send_html_mail(to = obj.email,
-                       tmpl_basename = 'accounts/email/default',
-                       context = email_context,
-                       subject = _('Account activation')
-                       )
-
-
 def register(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = RegisterForm(request, request.POST)
         
         if form.is_valid():
-            #register the user
-            pass
+            instance = form.save(commit=False)
+            instance.is_active = False
+            instance.set_password(form.cleaned_data['password'])
+            instance.save()
+            
+            tkt = Tkt.objects.get(user=instance)
+            referer = request.GET.get('ref', None)
+            if referer:
+                try:
+                    tkt.referer = int(referer)
+                    tkt.save()
+                except ValueError:
+                    pass
+            
+            email_context = {'username': instance.username,
+                             'password': form.cleaned_data.get('password',''),
+                             'activation_link': tkt.get_absolute_url(request)}
+        
+            send_html_mail(to = instance.email,
+                           tmpl_basename = 'accounts/email/default',
+                           context = email_context,
+                           subject = _('Account activation')
+                           )
+            
+            return redirect('account_register_ok')
  
     else:
-        pass
+        form = RegisterForm(request)
     
+    context = {'form': form}
+    response = simple.direct_to_template(request,
+                                         template='accounts/register.html',
+                                         extra_context=context)
+    return response
     
-
-register = CreateRegister()
-
-
 
 def register_confirm(request, key):
     tkt = get_object_or_404(Tkt, key=key)
@@ -78,7 +64,7 @@ def register_confirm(request, key):
     user.is_active = True
     user.save()
     
-    tkt.delete()
+    #tkt.delete()
     
     #Make login
     user.backend = 'django.contrib.auth.backends.ModelBackend'

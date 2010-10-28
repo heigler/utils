@@ -20,8 +20,7 @@ class RegisterForm(forms.ModelForm):
     confirm_password = forms.CharField(label=u'Confirme sua senha', widget=forms.PasswordInput)
     read_terms = forms.BooleanField(label=u'Declaro que li, entendi e aceito os termos de uso')
     
-    def __init__(self, *args, **kwargs):
-        request = kwargs.pop(request)
+    def __init__(self, request, *args, **kwargs):
         ref = request.GET.get('ref', '')
         self.options = FormOptions(submit_label=u'Enviar', include_help_text=False, action='.?ref=%s'%ref, css_p_map={'read_terms': 'terms'})
     
