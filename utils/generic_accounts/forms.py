@@ -114,7 +114,15 @@ class ChangePasswordForm(forms.ModelForm):
         
         
         return cleaned
-        
+
+
+class ChangeUsernameForm(forms.ModelForm):   
+    options = FormOptions(submit_label='Alterar', include_help_text=False)
+    
+    class Meta:
+        model = User
+        fields = ['username']        
+       
         
 class RecoveryTktForm(forms.Form):
     email = forms.EmailField()
